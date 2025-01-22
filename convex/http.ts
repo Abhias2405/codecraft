@@ -53,7 +53,6 @@ http.route({
       const name = `${first_name || ""} ${last_name || ""}`.trim();
 
         try {
-          //@ts-ignore
         await ctx.runMutation(api.users.syncUser, {
           userId: id,
           email,

@@ -10,13 +10,17 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.14",
+    "@monaco-editor/react": "^4.6.0",
     "convex": "^1.18.2",
+    "framer-motion": "^11.18.1",
     "lucide-react": "^0.473.0",
+    "monaco-editor": "^0.52.2",
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-hot-toast": "^2.5.1",
-    "svix": "^1.45.1"
+    "svix": "^1.45.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/node": "^20",
