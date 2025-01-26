@@ -2,7 +2,7 @@
 import { Snippet } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 
 import { motion } from "framer-motion";
