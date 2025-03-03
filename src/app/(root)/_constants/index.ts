@@ -1,5 +1,6 @@
-import { Monaco } from "@monaco-editor/react";
 import { Theme } from "../../../types";
+import { editor } from 'monaco-editor';
+import type { Monaco } from '@monaco-editor/react';
 
 type LanguageConfig = Record<
   string,
@@ -344,9 +345,17 @@ export const THEMES: Theme[] = [
   { id: "solarized-dark", label: "Solarized Dark", color: "#002b36" },
 ];
 
-export const THEME_DEFINITONS = {
+// Define a type that includes the BuiltinTheme enum type for the base property
+interface ThemeDefinition {
+  base: editor.BuiltinTheme;
+  inherit: boolean;
+  rules: editor.ITokenThemeRule[];
+  colors: { [key: string]: string };
+}
+
+export const THEME_DEFINITONS: Record<string, ThemeDefinition> = {
   "github-dark": {
-    base: "vs-dark",
+    base: "vs-dark" as editor.BuiltinTheme,
     inherit: true,
     rules: [
       { token: "comment", foreground: "6e7681" },
@@ -370,7 +379,7 @@ export const THEME_DEFINITONS = {
     },
   },
   monokai: {
-    base: "vs-dark",
+    base: "vs-dark" as editor.BuiltinTheme,
     inherit: true,
     rules: [
       { token: "comment", foreground: "75715E" },
@@ -394,7 +403,7 @@ export const THEME_DEFINITONS = {
     },
   },
   "solarized-dark": {
-    base: "vs-dark",
+    base: "vs-dark" as editor.BuiltinTheme,
     inherit: true,
     rules: [
       { token: "comment", foreground: "586e75" },
@@ -425,10 +434,7 @@ export const defineMonacoThemes = (monaco: Monaco) => {
     monaco.editor.defineTheme(themeName, {
       base: themeData.base,
       inherit: themeData.inherit,
-      rules: themeData.rules.map((rule) => ({
-        ...rule,
-        foreground: rule.foreground,
-      })),
+      rules: themeData.rules,
       colors: themeData.colors,
     });
   });
