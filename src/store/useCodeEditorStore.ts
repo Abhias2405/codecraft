@@ -1,10 +1,25 @@
-import { CodeEditorState } from "./../types/index";
 import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import { create } from "zustand";
-import { Monaco } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
+
+export interface CodeEditorState {
+  language: string;
+  fontSize: number;
+  theme: string;
+  output: string;
+  isRunning: boolean;
+  error: string | null;
+  editor: monaco.editor.IStandaloneCodeEditor | null;
+  executionResult: { code: string; output: string; error: string | null } | null;
+  getCode: () => string;
+  setEditor: (editor: monaco.editor.IStandaloneCodeEditor) => void;
+  setTheme: (theme: string) => void;
+  setFontSize: (fontSize: number) => void;
+  setLanguage: (language: string) => void;
+  runCode: () => Promise<void>;
+}
 
 const getInitialState = () => {
-  // if we're on the server, return default values
   if (typeof window === "undefined") {
     return {
       language: "javascript",
@@ -13,10 +28,9 @@ const getInitialState = () => {
     };
   }
 
-  // if we're on the client, return values from local storage bc localStorage is a browser API.
   const savedLanguage = localStorage.getItem("editor-language") || "javascript";
   const savedTheme = localStorage.getItem("editor-theme") || "vs-dark";
-  const savedFontSize = localStorage.getItem("editor-font-size") || 16;
+  const savedFontSize = localStorage.getItem("editor-font-size") || "16";
 
   return {
     language: savedLanguage,
@@ -38,37 +52,31 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
     getCode: () => get().editor?.getValue() || "",
 
-    setEditor: (editor: Monaco) => {
+    setEditor: (editor) => {
       const savedCode = localStorage.getItem(`editor-code-${get().language}`);
       if (savedCode) editor.setValue(savedCode);
 
       set({ editor });
     },
 
-    setTheme: (theme: string) => {
+    setTheme: (theme) => {
       localStorage.setItem("editor-theme", theme);
       set({ theme });
     },
 
-    setFontSize: (fontSize: number) => {
+    setFontSize: (fontSize) => {
       localStorage.setItem("editor-font-size", fontSize.toString());
       set({ fontSize });
     },
 
-    setLanguage: (language: string) => {
-      // Save current language code before switching
+    setLanguage: (language) => {
       const currentCode = get().editor?.getValue();
       if (currentCode) {
         localStorage.setItem(`editor-code-${get().language}`, currentCode);
       }
 
       localStorage.setItem("editor-language", language);
-
-      set({
-        language,
-        output: "",
-        error: null,
-      });
+      set({ language, output: "", error: null });
     },
 
     runCode: async () => {
@@ -98,59 +106,32 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
 
         const data = await response.json();
 
-        console.log("data back from piston:", data);
-
-        // handle API-level erros
         if (data.message) {
           set({ error: data.message, executionResult: { code, output: "", error: data.message } });
           return;
         }
 
-        // handle compilation errors
         if (data.compile && data.compile.code !== 0) {
           const error = data.compile.stderr || data.compile.output;
-          set({
-            error,
-            executionResult: {
-              code,
-              output: "",
-              error,
-            },
-          });
+          set({ error, executionResult: { code, output: "", error } });
           return;
         }
 
         if (data.run && data.run.code !== 0) {
           const error = data.run.stderr || data.run.output;
-          set({
-            error,
-            executionResult: {
-              code,
-              output: "",
-              error,
-            },
-          });
+          set({ error, executionResult: { code, output: "", error } });
           return;
         }
 
-        // if we get here, execution was successful
         const output = data.run.output;
-
         set({
           output: output.trim(),
           error: null,
-          executionResult: {
-            code,
-            output: output.trim(),
-            error: null,
-          },
+          executionResult: { code, output: output.trim(), error: null },
         });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.log("Error running code:", error);
-        set({
-          error: "Error running code",
-          executionResult: { code, output: "", error: "Error running code" },
-        });
+        set({ error: "Error running code", executionResult: { code, output: "", error: "Error running code" } });
       } finally {
         set({ isRunning: false });
       }
