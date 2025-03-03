@@ -20,6 +20,17 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Code Craft",
   description: "Share and run code snippets",
+  icons: {
+        icon: [
+            { url: '/bash.png', sizes: '16x16', type: 'image/png' },
+            { url: '/bash.png', sizes: '192x192', type: 'image/png' },
+            { url: '/bash.png', sizes: '512x512', type: 'image/png' },
+        ],
+        apple: [
+            { url: '/bash.png', sizes: '180x180', type: 'image/png' },
+        ],
+    },
+  
 };
 
 export default function RootLayout({
@@ -44,4 +55,3 @@ export default function RootLayout({
   );
 }
 
-// https://emkc.org/api/v2/piston/runtimes
